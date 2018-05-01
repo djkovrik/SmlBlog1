@@ -35,8 +35,8 @@ dependencies {
 ## Как это работает?
 
 Работа Jspoon основана на использовании аннотации ***@Selector*** с параметрами, на основе которых осуществляется парсинг html для получения
-POJO объектов. Благодаря тому, что для внутреннего парсинга html Jspoon использует все тот же Jsoup, для использования с аннотацией ***Selector***
-вам [доступен](https://jsoup.org/cookbook/extracting-data/selector-syntax) полный синтаксис селекторов из Jsoup, что позволит извлекать данные из html-кода
+POJO объектов. А благодаря тому, что для внутреннего парсинга html применяется все тот же Jsoup, для использования с аннотацией ***Selector***
+вам [доступен](https://jsoup.org/cookbook/extracting-data/selector-syntax) полный синтаксис селекторов этой библиотеки, что позволит извлекать данные из html-кода
 практически любой сложности.
 
 ## @Selector
@@ -94,4 +94,99 @@ Double pi;
 
 ## Давайте что-нибудь распарсим!
 
-Перейдем от теории к практике и для примера распарсим раздел [Разработка](https://ru.smedialink.com/blog/razrabotka/) нашего SML-блога.
+Перейдем от теории к практике и для примера распарсим раздел [Разработка](https://ru.smedialink.com/blog/razrabotka/) из SML-блога.
+
+Для начала, определим статический вспомогательный метод для создания инстанса Retrofit, который будет использоваться для выполнения запросов к нашему блогу:
+~~~ java
+  static Retrofit createRetrofitInstance() {
+
+    return new Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(customOkHttpClient())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .addConverterFactory(JspoonConverterFactory.create())
+        .build();
+  }
+~~~
+
+Для использования Jspoon достаточно подключить соответствующий конвертер с помощью метода `addConverterFactory`, после чего
+в дело вступит аннотация `@Selector`, благодаря которой будут конструироваться объявленные нами классы.
+
+В качестве базового примера рассмотрим получение статей из блога в виде списка объектов класса `SmlArticlePreview`, который содержит поля с
+названием статьи, ссылкой на статью, именем автора и небольшим превью-текстом. Для этого заглянем в исходники страницы с материалами блога и определим необходимые нам селекторы:
+
+![](images/html1.png)
+
+Каждая новость в блоге заключена в тег `div` с классом `news__item`, используем это для создания класса `BlogPage`, в котором будет содержаться список статей:
+~~~ java
+public class BlogPage {
+
+  @Selector("div.news__item")
+  public List<SmlArticlePreview> articles;
+}
+~~~
+
+Аналогичным образом используем аннотации для получения данных об отдельно взятой статье. Название на статью использует
+тег с классом `title`, теги с автором и превью имеют классы `author` и `preview` соответственно, а для получения ссылки используем параметр `attr`, описанный выше.
+В итоге объявление класса `SmlArticlePreview` имеет следующий вид:
+
+~~~ java
+public class SmlArticlePreview {
+
+  @Selector(value = "a.title")
+  public String title;
+
+  @Selector(value = "a.title", attr = "href")
+  public String titleLink;
+
+  @Selector(value = "p.author")
+  public String author;
+
+  @Selector(value = "p.preview")
+  public String preview;
+}
+~~~
+
+Далее объявим интерфейс `BlogLoader`, который содержит методы для загрузки статей из базового и продвинутого примеров.
+
+~~~ java
+public interface BlogLoader {
+
+  @GET("/blog/razrabotka/")
+  Single<BlogPage> loadBlogPage();
+
+  @GET("/blog/razrabotka/")
+  Single<BlogPageAdvanced> loadBlogPageAdvanced();
+}
+~~~
+
+Для проверки результатов используем простую программу на Java:
+
+~~~ java
+  public static void main(String[] args) {
+
+    RetrofitHelper
+        .createRetrofitInstance()
+        .create(BlogLoader.class)
+        .loadBlogPage()
+        .subscribe(
+            blogPage ->
+                blogPage.articles.forEach(SmlDisplayArticles::prettyPrintArticle),
+            throwable ->
+                System.out.println("Ошибка загрузки: " + throwable.getMessage()));
+  }
+~~~
+
+И распечатаем результаты в консоли:
+
+~~~ java
+  private static void prettyPrintArticle(SmlArticlePreview article) {
+    System.out.println("Заголовок: " + article.title);
+    System.out.println("Ссылка на статью: " + article.titleLink);
+    System.out.println("Автор: " + article.author);
+    System.out.println("Превью-текст: " + article.preview);
+    System.out.println("");
+  }
+~~~
+
+![](images/sample1.png)

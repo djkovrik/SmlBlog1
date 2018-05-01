@@ -19,7 +19,7 @@ class RetrofitHelper {
 
     return new Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .client(trustAllSslClient())
+        .client(customOkHttpClient())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .addConverterFactory(JspoonConverterFactory.create())
         .build();
@@ -57,7 +57,7 @@ class RetrofitHelper {
 
   private static final SSLSocketFactory socketFactory = trustAllSslContext.getSocketFactory();
 
-  public static OkHttpClient trustAllSslClient() {
+  public static OkHttpClient customOkHttpClient() {
 
     OkHttpClient client = new OkHttpClient();
     Builder builder = client.newBuilder();
