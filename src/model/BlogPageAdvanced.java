@@ -8,6 +8,9 @@ public class BlogPageAdvanced {
   @Selector(value = "a[id=id_vk_social]", attr = "href")
   public String vkLink;
 
+  @Selector(value = "a[id=id_fb_social]", attr = "href")
+  public String facebookLink;
+
   @Selector(value = "a[id=id_tw_social]", attr = "href")
   public String twitterLink;
 

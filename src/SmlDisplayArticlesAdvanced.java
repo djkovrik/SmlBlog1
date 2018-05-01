@@ -11,6 +11,7 @@ public class SmlDisplayArticlesAdvanced {
         .subscribe(
             blogPage -> {
               System.out.println("VK: " + blogPage.vkLink);
+              System.out.println("Facebook: " + blogPage.facebookLink);
               System.out.println("Twitter: " + blogPage.twitterLink);
               System.out.println("");
               blogPage.articles.forEach(SmlDisplayArticlesAdvanced::prettyPrintArticle);
@@ -21,11 +22,10 @@ public class SmlDisplayArticlesAdvanced {
 
   private static void prettyPrintArticle(SmlArticlePreviewAdvanced article) {
     System.out.println("Заголовок: " + article.title);
-    System.out.println("Превью-картинка: " + article.previewImage);
-    System.out.println("Ссылка на статью: " + article.titleLink);
+    System.out.println("Ссылка на статью: " + article.link);
     System.out.println("Автор: " + article.author);
-    System.out.println("Дата: " + article.date);
     System.out.println("Превью-текст: " + article.preview);
+    System.out.println("Превью-картинка: " + article.previewImage);
     System.out.println("");
   }
 }

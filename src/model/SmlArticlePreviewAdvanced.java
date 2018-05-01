@@ -1,6 +1,5 @@
 package model;
 
-import java.util.Date;
 import pl.droidsonroids.jspoon.annotation.Selector;
 
 public class SmlArticlePreviewAdvanced {
@@ -9,17 +8,14 @@ public class SmlArticlePreviewAdvanced {
   public String title;
 
   @Selector(value = "a.title", attr = "href")
-  public String titleLink;
-
-  @Selector(value = "a > img", attr = "src", defValue = "")
-  public String previewImage;
+  public String link;
 
   @Selector(value = ".author")
   public String author;
 
-  @Selector(value = ".date-tag", format = "d MMMMM YYYY", locale = "ru")
-  public Date date;
-
   @Selector(value = "p.preview")
   public String preview;
+
+  @Selector(value = "a > img", attr = "src", defValue = "")
+  public String previewImage;
 }

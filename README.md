@@ -215,3 +215,97 @@ public interface BlogLoader {
 ~~~
 
 ![](images/sample1.png)
+
+#### Дополнительный пример
+
+В следующем примере рассмотрим дополнительные возможности селекторов, позволяющие более точно настроить парсинг необходимых нам данных. Предположим, что
+кроме списка статей со страницы нам необходимо получить ссылки на некоторые страницы компании в социальных сетях, а класс статьи так же должен содержать поле со ссылкой на картинку-превью.
+
+Еще раз заглянем в исходники страницы:
+~~~ html
+<div class="footer__social">
+  <ul class="social__list">
+    <li class="social-list__item"><a href="https://vk.com/smedialink" id="id_vk_social"></a></li>
+    <li class="social-list__item"><a href="https://www.facebook.com/smedialink/" id="id_fb_social"></a></li>
+    <li class="social-list__item"><a href="https://www.linkedin.com/company/s-media-link-россия" id="id_in_social"></a></li>
+    <li class="social-list__item"><a href="https://twitter.com/smedialink" id="id_tw_social"></a></li>
+  </ul>
+</div>
+~~~
+
+Для получения ссылок нам необходимо извлечь тег `a` с уникальным идентификатором, соответствующим конкретной соц. сети. В итоге класс, представляющий страницу блога будет иметь вид:
+
+~~~ java
+public class BlogPageAdvanced {
+
+  @Selector(value = "a[id=id_vk_social]", attr = "href")
+  public String vkLink;
+
+  @Selector(value = "a[id=id_fb_social]", attr = "href")
+  public String facebookLink;
+
+  @Selector(value = "a[id=id_tw_social]", attr = "href")
+  public String twitterLink;
+
+  @Selector("div.news__item")
+  public List<SmlArticlePreviewAdvanced> articles;
+}
+~~~
+
+Для извлечения картинки на превью статьи воспользуемся синтаксисом селекторов, позводяющим искать теги в определенной последовательности. Т.к. поиск будет осуществляться внутри
+тега `div` имеющего класс `news__item`, то нам остается лишь найти тег `img` внутри тега `a` и получить его аттрибут `scr`.
+Обновленная версия класса, представляющего статью:
+~~~ java
+public class SmlArticlePreviewAdvanced {
+
+  @Selector(value = "a.title")
+  public String title;
+
+  @Selector(value = "a.title", attr = "href")
+  public String link;
+
+  @Selector(value = ".author")
+  public String author;
+
+  @Selector(value = "p.preview")
+  public String preview;
+
+  @Selector(value = "a > img", attr = "src", defValue = "")
+  public String previewImage;
+}
+~~~
+Также обратите внимание на параметр `defValue`, определяющий значение по умолчанию для поля previewImage в случаях неудачного парсинга (когда статья не содержит картинку-превью).
+
+Обновим основной блок тестовой программы:
+~~~ java
+  public static void main(String[] args) {
+
+    RetrofitHelper
+        .createRetrofitInstance()
+        .create(BlogLoader.class)
+        .loadBlogPageAdvanced()
+        .subscribe(
+            blogPage -> {
+              System.out.println("VK: " + blogPage.vkLink);
+              System.out.println("Facebook: " + blogPage.facebookLink);
+              System.out.println("Twitter: " + blogPage.twitterLink);
+              System.out.println("");
+              blogPage.articles.forEach(SmlDisplayArticlesAdvanced::prettyPrintArticle);
+            },
+            throwable ->
+                System.out.println("Ошибка загрузки: " + throwable.getMessage()));
+  }
+
+  private static void prettyPrintArticle(SmlArticlePreviewAdvanced article) {
+    System.out.println("Заголовок: " + article.title);
+    System.out.println("Ссылка на статью: " + article.link);
+    System.out.println("Автор: " + article.author);
+    System.out.println("Превью-текст: " + article.preview);
+    System.out.println("Превью-картинка: " + article.previewImage);
+    System.out.println("");
+  }
+~~~
+
+И проверим результат:
+
+![](images/sample2.png)
