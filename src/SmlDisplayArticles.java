@@ -17,7 +17,7 @@ public class SmlDisplayArticles {
 
   private static void prettyPrintArticle(SmlArticlePreview article) {
     System.out.println("Заголовок: " + article.title);
-    System.out.println("Ссылка на статью: " + article.titleLink);
+    System.out.println("Ссылка на статью: " + article.link);
     System.out.println("Автор: " + article.author);
     System.out.println("Превью-текст: " + article.preview);
     System.out.println("");

@@ -8,7 +8,7 @@ public class SmlArticlePreview {
   public String title;
 
   @Selector(value = "a.title", attr = "href")
-  public String titleLink;
+  public String link;
 
   @Selector(value = "p.author")
   public String author;

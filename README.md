@@ -115,7 +115,32 @@ Double pi;
 В качестве базового примера рассмотрим получение статей из блога в виде списка объектов класса `SmlArticlePreview`, который содержит поля с
 названием статьи, ссылкой на статью, именем автора и небольшим превью-текстом. Для этого заглянем в исходники страницы с материалами блога и определим необходимые нам селекторы:
 
-![](images/html1.png)
+~~~ html
+...
+<div class="news__item" id="blog-post-5825">
+	<a href="https://ru.smedialink.com/razrabotka/change-detection-vo-frontend-frejmvorkah/">
+		<img src="https://smedialink.com/wp-content/uploads/2018/02/426-248-v2.jpg" alt="Change detection во фронтенд-фреймворках">
+	</a>
+	<div class="description">
+		<p class="author">Александр Хисматулин</p>
+			<p><a class="title" href="https://ru.smedialink.com/razrabotka/change-detection-vo-frontend-frejmvorkah/">Change detection во фронтенд-фреймворках</a></p>
+		<p class="preview">Мир современной фронтенд-разработки предлагает множество библиотек и фреймворков на разный...</p>
+		<div class="date-tag">1 марта</div><a href="https://ru.smedialink.com/blog/razrabotka/" class="button-tag tag">Разработка</a>
+	</div>
+</div>
+<div class="news__item" id="blog-post-5828">
+	<a href="https://ru.smedialink.com/razrabotka/podhody-k-realizatsii-poiska-dokumentov-na-servere/">
+		<img src="https://smedialink.com/wp-content/uploads/2018/02/426-248.jpg" alt="Подходы к реализации поиска документов на сервере">
+	</a>
+	<div class="description">
+		<p class="author">Антон Рогазинский</p>
+			<p><a class="title" href="https://ru.smedialink.com/razrabotka/podhody-k-realizatsii-poiska-dokumentov-na-servere/">Подходы к реализации поиска документов на сервере</a></p>
+		<p class="preview">При разработке сайта, предоставляющего доступ к большому количеству медиа контента,...</p>
+		<div class="date-tag">1 марта</div><a href="https://ru.smedialink.com/blog/razrabotka/" class="button-tag tag">Разработка</a>
+	</div>
+</div>
+...
+~~~
 
 Каждая новость в блоге заключена в тег `div` с классом `news__item`, используем это для создания класса `BlogPage`, в котором будет содержаться список статей:
 ~~~ java
@@ -137,7 +162,7 @@ public class SmlArticlePreview {
   public String title;
 
   @Selector(value = "a.title", attr = "href")
-  public String titleLink;
+  public String link;
 
   @Selector(value = "p.author")
   public String author;
@@ -182,7 +207,7 @@ public interface BlogLoader {
 ~~~ java
   private static void prettyPrintArticle(SmlArticlePreview article) {
     System.out.println("Заголовок: " + article.title);
-    System.out.println("Ссылка на статью: " + article.titleLink);
+    System.out.println("Ссылка на статью: " + article.link);
     System.out.println("Автор: " + article.author);
     System.out.println("Превью-текст: " + article.preview);
     System.out.println("");
