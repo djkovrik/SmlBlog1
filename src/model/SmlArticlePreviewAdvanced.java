@@ -16,6 +16,6 @@ public class SmlArticlePreviewAdvanced {
   @Selector(value = "p.preview")
   public String preview;
 
-  @Selector(value = "a > img", attr = "src", defValue = "")
+  @Selector(value = "a > img", attr = "src", regex = ".*/(.*)", defValue = "")
   public String previewImage;
 }

@@ -25,7 +25,7 @@ public class SmlDisplayArticlesAdvanced {
     System.out.println("Ссылка на статью: " + article.link);
     System.out.println("Автор: " + article.author);
     System.out.println("Превью-текст: " + article.preview);
-    System.out.println("Превью-картинка: " + article.previewImage);
+    System.out.println("Файл превью: " + article.previewImage);
     System.out.println("");
   }
 }
